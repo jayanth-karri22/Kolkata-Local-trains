@@ -2,6 +2,7 @@
 #include<ctype.h>
 #include<string.h>
 #include<stdlib.h>
+#include<time.h>
 
 char Time[50];
 
@@ -19,9 +20,9 @@ int Whichtrain(int ini, int Fin){
                 return 3;
             else return 4;
         }
-        else if(ini==38 &&Fin<35){
+        else if(ini==38 &&Fin<35 ){
                     return 4;}
-            else if(Fin>ini)
+            else if(Fin>ini || Fin<35)
                     return 5;
                 else return 6;
             return 0;
@@ -44,7 +45,6 @@ int pathFunc(char str1[], char str2[], int *end){
         fscanf(fin1,"%s%d",st,&n);
         if(strcmp(str1,st)==0){
             ini=n;
-            printf("%d\n",ini);
             break;
         }
     }
@@ -56,7 +56,6 @@ int pathFunc(char str1[], char str2[], int *end){
         fscanf(fin2,"%s%d",st,&n);
         if(strcmp(str2,st)==0){
             Fin=n;
-            printf("%d\n",Fin);
             break;
         }
    }
@@ -79,16 +78,15 @@ int pathFunc(char str1[], char str2[], int *end){
         else if( Fin>38 || Fin==35|| Fin==36|| Fin==37){
             *end = 38;
         }
+        else if (route ==4 && Fin>17 && Fin<33){
+                *end = 17;
+            }
     }
         else if(Fin<38 && Fin!=35 && Fin!=36 && Fin!=37)
             *end = 38;
-
-    printf("Route to be taken is: %d\n",route);
-    printf("End :%d\n",*end);
     return route;
 }
 int timeReturn( char endStation[], int l, int count){
-    printf("%sV",Time);
     char *t, str[1024];
     FILE *fp;
     switch(l){
@@ -128,7 +126,7 @@ int timeReturn( char endStation[], int l, int count){
             count1++;
             if(count1 == count+1){
                 if(t[i] == 107){
-                    printf("Train Won't Stop!");
+                    printf("Train Won't Stop! \n");
                     return -1;
                     }
                 else if(isdigit(t[i-2])){
@@ -149,7 +147,6 @@ int timeReturn( char endStation[], int l, int count){
     return 0;
 }
 int trainReturn(char stCode[], char Time[], int l,char endStation[]){
-   printf("%s___",Time);
    int  i,temp=0,j=-1;
     FILE *fp,*fp1;
    char str[1024],arr[50];
@@ -201,8 +198,6 @@ int trainReturn(char stCode[], char Time[], int l,char endStation[]){
         if(strstr(str,stCode))
         break;
    }
-   printf("%s",p);
-   printf("yay\n");
    int x = strlen(Time);
    for(i=0;i<strlen(p);i++){
    if(p[i]==':' || p[i]=='k'){
@@ -247,7 +242,6 @@ int trainReturn(char stCode[], char Time[], int l,char endStation[]){
         }
         else if(Time[0]=='9'){
             strcpy(Time,("10:00"));
-            printf("%s",Time);
             x = strlen(Time);
             i=0;
         }
@@ -265,7 +259,6 @@ int trainReturn(char stCode[], char Time[], int l,char endStation[]){
             break;
    }
    temp = 13 + count*6;
-   printf("***********\n");
    j=timeReturn(endStation,l,count);
     if(j==-1)
     {
@@ -277,7 +270,7 @@ int trainReturn(char stCode[], char Time[], int l,char endStation[]){
         }
     }
    }
-  printf(" %c""%c""%c""%c""%c",c[temp],c[temp+1],c[temp+2],c[temp+3],c[temp+4]);
+  printf(" %c""%c""%c""%c""%c ",c[temp],c[temp+1],c[temp+2],c[temp+3],c[temp+4]);
    fclose(fp1);
    return 0;
 }
@@ -288,7 +281,7 @@ distributerFunc( char stCode[], char stCodef[], char Time[]){
    while(j==-1){
     int k=0;
    l=pathFunc( stCode, stCodef, &end);
-   printf("Station no. :%d\n",end);
+   printf("%d ROUTE\n",l);
    FILE *fin;
    fin = fopen("stations.txt","r");
    if( !fin){
@@ -301,38 +294,49 @@ distributerFunc( char stCode[], char stCodef[], char Time[]){
         endStation[k]=str[k];
         k++;
     }
-    printf("End station name: %s\n",endStation);
     fclose(fin);
-    printf("yay\n");
     trainReturn(stCode,Time,l,endStation);
-    printf("yay\n");
-    printf("%s\n%s\n",endStation,stCodef);
    if (endStation[0]==stCodef[0]&&endStation[1]==stCodef[1]&&endStation[2]==stCodef[2]){
         j=0;
+        printf("%s to %s\n",stCode,endStation);
         printf("done");
    }
-   else { printf("%s%s\n",endStation,stCodef);
+   else { printf("%s to %s\n",stCode,endStation);
         stCode[0]=endStation[0];
         stCode[1]=endStation[1];
         if(isalpha(endStation[2]))
             stCode[2]=endStation[2];
         else stCode[2]='\0';
-        printf("%s",stCode);
         j=-1;}
     }
    return 0;
 }
 
 int main(){
+    int i,xo;
+    char T[24];
+    time_t t;
+    t = time(&t);
+    char* c_time_string;
+    strcpy(T, ctime(&t));
 	char stCodei[5],stCodef[5];
 	printf("Please follow the following codes for respective stations: \n Barddhaman \t BWN \t Durgapur \t DGR \t RaniGanj \t RNG \n Asansol \t ASN \t Dhanbad \t DHN \t Bandel \t BDC \n DaltonGanj \t DTO \t Garhwa Road \t GHD \t Renukut \t RNQ \n Chopan \t CPU \t Guna \t\t GUNA \t Barkakana \t BRKA \n Singrauli \t SGRL \t Beohari \t BEHR \t Damoh \t\t DMO \n Saugor \t SGO \t Mungaoli \t MNV \t Ashok Nagar \t ASKN \n Phusro \t PUS \t Katni Murwara \t KMZ \t Kolkata \t KOAA \n Hooghly \t HYG \t Garifa \t GFAE \t Naihati \t NH \n Sealdah \t SDAH \t Bidhan Nagar \t BNXR \t Dum Dum \t DDJ \n Belgharia \t BLH \t Agarpara \t AGP \t Sodpur \t SEP \n Khardaha \t KDH \t Titagarh \t TGH \t Barrackpore \t BP \n Palta \t\t PTF \t Ichhapur \t IP \t Shyamnagar \t SNR \n Jagaddal \t JGDL \t Kakinara \t KNR \t Halisahar \t HLR \n Kanchrapara \t KPA \t Kalyani \t KYI \t Howrah \t HWH \n Liluah \t LLH \t Belur \t\t BEQ \t Bally \t\t BLY \n Uttarpara \t UPA \t Hind Motor \t HMZ \t Konnagar \t KOG \n Rishra \t RIS \t Shrirampur \t SRP \t Seoraphuli \t SHE \n Baidyabati \t BBAE \t Bhadreshwar \t BHR \t Mankundu \t MUU \n Chuchura \t CNS \t Chandan \t CGR \n ");
 	printf("Enter the starting station :");
 	scanf("%s",stCodei);
 	printf("Enter the Destination station code: ");
 	scanf("%s",stCodef);
-	printf("Enter date and time: ");
-	scanf("%s",Time);
-	distributerFunc(stCodei,stCodef,Time);
+    printf("Press 1 if you want to use the current time and 0 otherwise.");
+    scanf("%d",&xo);
+   if (xo==1){
+        for(i=0;i<5;i++){
+            Time[i]=T[11+i];
+        }
+   }
+   else if (xo==0){
+          printf("Enter date and time: ");
+        scanf("%s",Time);
+   }
+  	distributerFunc(stCodei,stCodef,Time);
 	printf("Have a happy journey!\n");
 	return 0;
 }
